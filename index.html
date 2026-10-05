@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ulangan Fisika - Listrik Dinamis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            user-select: none; /* Prevent text selection for anti-cheat */
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Anti-cheat overlay */
+        #anti-cheat-screen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #ef4444;
+            color: white;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .option-label {
+            transition: all 0.2s;
+        }
+        .option-label:hover {
+            background-color: #e0f2fe;
+            border-color: #38bdf8;
+        }
+        input[type="radio"]:checked + span {
+            font-weight: 600;
+            color: #0369a1;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;"> <!-- Disable Right Click -->
+
+    <div id="anti-cheat-screen">
+        <svg class="w-24 h-24 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <h1 class="text-4xl font-bold mb-4">Pelanggaran Terdeteksi!</h1>
+        <p class="text-xl mb-4">Anda terdeteksi keluar dari layar ujian atau mencoba membuka tab lain.</p>
+        <p class="text-lg font-semibold bg-white text-red-600 px-4 py-2 rounded-lg">Ujian dihentikan dan nilai Anda telah dikirim secara otomatis.</p>
+    </div>
+
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div id="app-container" class="glass-panel w-full max-w-3xl rounded-2xl p-6 md:p-8 relative overflow-hidden">
+            
+            <!-- VIEW: LOGIN -->
+            <div id="view-login" class="block">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Ulangan Harian Fisika</h1>
+                    <p class="text-gray-500">Materi: Listrik Dinamis | 20 Soal</p>
+                </div>
+
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap</label>
+                        <input type="text" id="input-nama" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="Masukkan nama Anda">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Kelas</label>
+                        <select id="input-kelas" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                            <option value="">-- Pilih Kelas --</option>
+                            <option value="12 IPA 1">12 IPA 1</option>
+                            <option value="12 IPA 2">12 IPA 2</option>
+                            <option value="12 IPA 3">12 IPA 3</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>Perhatian:</strong> Ujian ini menggunakan mode Layar Penuh (Full-Screen) dan deteksi perpindahan tab. Jangan keluar aplikasi selama ujian atau pekerjaan Anda akan langsung dikumpulkan! Waktu pengerjaan adalah 3 menit per soal.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="btn-start" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg mt-6">
+                        Mulai Ulangan
+                    </button>
+                </div>
+
+                <div class="mt-8 text-center border-t pt-4">
+                    <button id="btn-show-teacher" class="text-sm text-gray-400 hover:text-gray-600">Masuk sebagai Guru</button>
+                </div>
+            </div>
+
+            <!-- VIEW: QUIZ -->
+            <div id="view-quiz" class="hidden">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                    <div class="text-lg font-bold text-gray-700">Soal <span id="text-current-q" class="text-blue-600">1</span> / 20</div>
+                    <div class="flex items-center space-x-2 bg-red-100 text-red-700 px-4 py-2 rounded-full font-bold">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span id="text-timer">03:00</span>
+                    </div>
+                </div>
+
+                <div class="min-h-[250px]">
+                    <h2 id="question-text" class="text-xl font-semibold text-gray-800 mb-6 leading-relaxed">Pertanyaan akan muncul di sini...</h2>
+                    
+                    <div id="options-container" class="space-y-3">
+                        <!-- Options injected by JS -->
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-8 pt-4 border-t border-gray-200">
+                    <button id="btn-prev" class="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition">Sebelumnya</button>
+                    <button id="btn-next" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">Selanjutnya</button>
+                    <button id="btn-submit" class="hidden px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition shadow-lg">Selesai & Kumpulkan</button>
+                </div>
+            </div>
+
+            <!-- VIEW: RESULT -->
+            <div id="view-result" class="hidden text-center py-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
+                    <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Ulangan Selesai!</h1>
+                <p class="text-gray-500 mb-6">Terima kasih <span id="res-nama" class="font-semibold text-gray-700"></span> telah mengerjakan.</p>
+                
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-8 max-w-sm mx-auto shadow-inner">
+                    <div class="text-sm text-gray-500 uppercase tracking-wider font-semibold mb-1">Nilai Akhir Anda</div>
+                    <div id="res-score" class="text-6xl font-black text-blue-600">100</div>
+                </div>
+
+                <div class="italic text-lg text-emerald-700 font-medium px-4 leading-relaxed max-w-xl mx-auto">
+                    "Kerja keras tidak akan pernah mengkhianati hasil. Teruslah bersemangat dalam belajar Fisika, karena alam semesta menunggumu untuk memahaminya!"
+                </div>
+            </div>
+
+            <!-- VIEW: TEACHER DASHBOARD -->
+            <div id="view-teacher" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Dashboard Guru</h2>
+                    <button id="btn-close-teacher" class="text-gray-500 hover:text-red-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <div id="teacher-login" class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Password Guru</label>
+                    <div class="flex space-x-2">
+                        <input type="password" id="input-password" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masukkan password (guru123)">
+                        <button id="btn-login-teacher" class="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-900">Masuk</button>
+                    </div>
+                    <p id="teacher-error" class="text-red-500 text-sm mt-2 hidden">Password salah!</p>
+                </div>
+
+                <div id="teacher-data" class="hidden">
+                    <div class="flex justify-between items-end mb-4">
+                        <h3 class="font-semibold text-gray-700">Data Nilai Siswa</h3>
+                        <button id="btn-download-csv" class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded shadow flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Download Spreadsheet (CSV)
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto border border-gray-200 rounded-lg max-h-64 overflow-y-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-100 sticky top-0">
+                                <tr>
+                                    <th class="p-3 border-b font-semibold text-gray-700 text-sm">Waktu</th>
+                                    <th class="p-3 border-b font-semibold text-gray-700 text-sm">Nama</th>
+                                    <th class="p-3 border-b font-semibold text-gray-700 text-sm">Kelas</th>
+                                    <th class="p-3 border-b font-semibold text-gray-700 text-sm">Nilai</th>
+                                    <th class="p-3 border-b font-semibold text-gray-700 text-sm">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="text-sm">
+                                <!-- Data diisi oleh JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="loading-text" class="text-center text-gray-500 mt-4 hidden">Memuat data dari server...</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-fisika-app';
+        
+        // GANTI BAGIAN INI JIKA INGIN DI-HOSTING SENDIRI
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            // Hapus tanda komentar (//) di bawah ini dan masukkan konfigurasi Firebase Anda:
+            // apiKey: "API_KEY_ANDA",
+            // authDomain: "PROJECT_ANDA.firebaseapp.com",
+            // projectId: "PROJECT_ANDA",
+            // storageBucket: "PROJECT_ANDA.appspot.com",
+            // messagingSenderId: "SENDER_ID_ANDA",
+            // appId: "APP_ID_ANDA"
+        };
+
+        let app, db, auth, currentUser = null;
+        let isDbConnected = false;
+
+        async function initFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.warn("Config Firebase kosong. Menjalankan aplikasi tanpa koneksi database.");
+                    return;
+                }
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                let userCredential;
+                if (typeof __initial_auth_token !== 'undefined') {
+                    userCredential = await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    userCredential = await signInAnonymously(auth);
+                }
+                currentUser = userCredential.user;
+                isDbConnected = true;
+                console.log("Database berhasil terhubung! ID Anda:", currentUser.uid);
+            } catch (error) {
+                console.error("Gagal terhubung ke database:", error);
+                isDbConnected = false;
+            }
+        }
+
+        initFirebase();
+
+        const questions = [
+            // 1. HOTS Pengertian Listrik Dinamis
+            {
+                q: "Dalam sebuah sistem smart home (rumah pintar), lampu lorong dapat meredup secara otomatis saat tidak ada orang dan menyala terang seketika saat sensor mendeteksi pergerakan. Fenomena penyesuaian intensitas cahaya ini paling tepat menunjukkan prinsip kelistrikan dinamis di mana...",
+                options: [
+                    "Arus listrik mengalir tanpa henti meskipun sirkuit dalam keadaan terbuka.",
+                    "Besar arus listrik yang mengalir dapat dimanipulasi dengan mengubah nilai hambatan secara dinamis pada rangkaian tertutup.",
+                    "Muatan listrik statis menumpuk pada sensor sehingga memberikan daya tambahan pada lampu.",
+                    "Tegangan dari sumber listrik (PLN) berubah-ubah secara ekstrem mengikuti pergerakan orang.",
+                    "Lampu memiliki kemampuan untuk menghasilkan sumber beda potensialnya sendiri."
+                ],
+                answer: 1
+            },
+            // 2. R Seri 1
+            {
+                q: "Tiga buah hambatan listrik masing-masing sebesar 4 Ω, 6 Ω, dan 10 Ω dirangkai secara seri. Berapa besar hambatan pengganti (total) dari rangkaian tersebut?",
+                options: ["20 Ω", "10 Ω", "1,9 Ω", "240 Ω", "12 Ω"],
+                answer: 0
+            },
+            // 3. R Seri 2
+            {
+                q: "Sebuah rangkaian seri terdiri dari dua buah lampu pijar dengan hambatan masing-masing 15 Ω dan 25 Ω. Jika kawat penghubung dihitung memiliki hambatan kecil sebesar 0,5 Ω, berapakah hambatan total rangkaian tersebut?",
+                options: ["40 Ω", "39,5 Ω", "40,5 Ω", "10 Ω", "20,5 Ω"],
+                answer: 2
+            },
+            // 4. R Paralel 1
+            {
+                q: "Dua buah resistor dengan nilai 12 Ω dan 6 Ω dihubungkan secara paralel. Hambatan pengganti total rangkaian tersebut adalah...",
+                options: ["18 Ω", "4 Ω", "6 Ω", "8 Ω", "2 Ω"],
+                answer: 1 // (12*6)/(12+6) = 72/18 = 4
+            },
+            // 5. R Paralel 2
+            {
+                q: "Tiga resistor dirangkai secara paralel, yaitu 2 Ω, 3 Ω, dan 6 Ω. Hambatan total dari ketiga resistor tersebut sebesar...",
+                options: ["11 Ω", "1 Ω", "0,5 Ω", "1,5 Ω", "6 Ω"],
+                answer: 1 // 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 6/6 -> R = 1
+            },
+            // 6. R Campuran 1
+            {
+                q: "Resistor R1 = 4 Ω dan R2 = 4 Ω dirangkai paralel, kemudian gabungan keduanya dirangkai seri dengan resistor R3 = 8 Ω. Total hambatan rangkaian campuran tersebut adalah...",
+                options: ["10 Ω", "16 Ω", "8 Ω", "12 Ω", "6 Ω"],
+                answer: 0 // (4||4) = 2. 2 + 8 = 10
+            },
+            // 7. R Campuran 2
+            {
+                q: "Terdapat tiga buah hambatan identik yang masing-masing nilainya 6 Ω. Jika dua di antaranya diserikan, lalu gabungannya diparalelkan dengan hambatan yang ketiga, hambatan totalnya menjadi...",
+                options: ["18 Ω", "4 Ω", "2 Ω", "12 Ω", "3 Ω"],
+                answer: 1 // 6+6=12. 12||6 = (12*6)/18 = 4
+            },
+            // 8. R Campuran 3
+            {
+                q: "Sebuah resistor 10 Ω dirangkai seri dengan sebuah kelompok percabangan paralel. Kelompok paralel tersebut terdiri dari dua resistor, yaitu 20 Ω dan 5 Ω. Hambatan total seluruh rangkaian adalah...",
+                options: ["14 Ω", "35 Ω", "15 Ω", "4 Ω", "25 Ω"],
+                answer: 0 // 20||5 = (20*5)/25 = 100/25 = 4. 10 + 4 = 14
+            },
+            // 9. I satu resistor seri
+            {
+                q: "Dua buah resistor 3 Ω dan 7 Ω dirangkai seri dan dihubungkan pada sumber tegangan DC sebesar 20 Volt. Kuat arus yang melewati resistor 7 Ω adalah sebesar...",
+                options: ["10 A", "2 A", "7 A", "3 A", "20 A"],
+                answer: 1 // Rtot = 10. I = 20/10 = 2A. Seri arus sama di semua titik.
+            },
+            // 10. I satu resistor paralel
+            {
+                q: "Resistor 6 Ω dan 3 Ω dirangkai secara paralel, lalu dihubungkan ke baterai dengan beda potensial 12 Volt (hambatan dalam diabaikan). Berapakah kuat arus yang mengalir KHUSUS pada cabang resistor 3 Ω?",
+                options: ["2 A", "6 A", "4 A", "12 A", "3 A"],
+                answer: 2 // Paralel tegangan sama (12V). I pada 3ohm = 12/3 = 4A.
+            },
+            // 11. V satu resistor seri
+            {
+                q: "Tiga buah hambatan yaitu 2 Ω, 3 Ω, dan 5 Ω dirangkai seri lalu dihubungkan ke sumber tegangan 20 Volt. Beda potensial (tegangan) yang terukur pada ujung-ujung hambatan 3 Ω saja adalah...",
+                options: ["6 Volt", "4 Volt", "10 Volt", "20 Volt", "2 Volt"],
+                answer: 0 // Rtot=10, I=20/10=2A. V pada 3ohm = I*R = 2*3 = 6V.
+            },
+            // 12. V satu resistor paralel
+            {
+                q: "Tiga buah resistor (10 Ω, 20 Ω, 30 Ω) disusun secara paralel. Jika diketahui kuat arus TOTAL yang masuk ke percabangan adalah sebesar 11 Ampere, berapakah beda potensial pada ujung-ujung resistor 20 Ω?",
+                options: ["60 Volt", "20 Volt", "110 Volt", "30 Volt", "220 Volt"],
+                answer: 0 // Rtot: 1/10+1/20+1/30 = 6/60+3/60+2/60 = 11/60. R=60/11 ohm. Vtot = Itot*R = 11 * 60/11 = 60V. Paralel tegangan sama.
+            },
+            // 13. V total paralel
+            {
+                q: "Sebuah rangkaian listrik paralel terdiri dari resistor 4 Ω dan 12 Ω. Jika ammeter menunjukkan arus total yang mengalir dari sumber adalah sebesar 4 Ampere, berapakah tegangan sumber seluruh rangkaian?",
+                options: ["12 Volt", "16 Volt", "48 Volt", "8 Volt", "3 Volt"],
+                answer: 0 // Rtot: (4*12)/(4+12)=48/16 = 3 ohm. Vtot = I*R = 4*3 = 12V.
+            },
+            // 14. V total seri
+            {
+                q: "Kuat arus sebesar 0,5 Ampere mengalir stabil dalam sebuah rangkaian seri yang terdiri dari dua resistor: 10 Ω dan 30 Ω. Tegangan total baterai yang digunakan pada sirkuit tersebut adalah...",
+                options: ["10 Volt", "15 Volt", "20 Volt", "5 Volt", "40 Volt"],
+                answer: 2 // Rtot = 10+30=40. V = I*R = 0.5 * 40 = 20V.
+            },
+            // 15. I total paralel
+            {
+                q: "Tiga buah alat listrik dirangkai paralel, masing-masing memiliki hambatan 12 Ω, 6 Ω, dan 4 Ω. Rangkaian ini dihubungkan ke sumber tegangan PLN sebesar 24 Volt. Kuat arus total yang mengalir dari sumber adalah...",
+                options: ["2 A", "12 A", "6 A", "4 A", "1 A"],
+                answer: 1 // 1/R = 1/12+2/12+3/12 = 6/12 -> R=2. Itot = 24/2 = 12A.
+            },
+            // 16. I total seri
+            {
+                q: "Lima buah lampu pijar identik dengan hambatan masing-masing 20 Ω dirangkai berderet (seri) tak berabang pada tegangan sumber 200 Volt. Arus listrik total yang keluar dari sumber adalah...",
+                options: ["2 A", "10 A", "0,5 A", "5 A", "20 A"],
+                answer: 0 // Rtot = 5*20=100. Itot = 200/100 = 2A.
+            },
+            // 17. I total campuran
+            {
+                q: "Dua hambatan 3 Ω dan 6 Ω dihubungkan secara paralel. Keduanya lalu disambung seri dengan sebuah hambatan 2 Ω. Jika seluruh rangkaian dihubungkan dengan aki 12 Volt, arus total yang mengalir sebesar...",
+                options: ["12 A", "2 A", "4 A", "3 A", "6 A"],
+                answer: 3 // Rp = 3*6/9 = 2. Rtot = 2+2=4. Itot = 12/4 = 3A.
+            },
+            // 18. V total campuran
+            {
+                q: "Sebuah rangkaian listrik campuran (kombinasi seri dan paralel) memiliki perhitungan hambatan ekuivalen/total sebesar 15 Ω. Jika kuat arus yang mengalir pada bagian kabel utama (sebelum cabang paralel) terukur sebesar 2 Ampere, tegangan sumbernya adalah...",
+                options: ["30 Volt", "15 Volt", "7,5 Volt", "60 Volt", "20 Volt"],
+                answer: 0 // V = I*R = 2 * 15 = 30V.
+            },
+            // 19. Daya Listrik (Pengayaan 1)
+            {
+                q: "Pemanas air tertulis spesifikasi 220 V / 440 W. Jika alat tersebut dipasang pada sumber tegangan yang tepat (220 V), berapakah kuat arus listrik yang mengalir di dalamnya?",
+                options: ["2 A", "0,5 A", "4,4 A", "22 A", "880 A"],
+                answer: 0 // P = V*I -> I = P/V = 440/220 = 2A
+            },
+            // 20. Energi Listrik (Pengayaan 2)
+            {
+                q: "Sebuah setrika listrik memiliki daya 300 Watt. Jika setrika tersebut digunakan secara terus-menerus selama 2 jam, berapakah besar energi listrik yang diserap (dalam Watt-hour/Wh)?",
+                options: ["600 Joule", "300 Wh", "600 Wh", "150 Wh", "6000 Wh"],
+                answer: 2 // W = P*t = 300W * 2h = 600Wh
+            }
+        ];
+
+        let currentQuestion = 0;
+        let studentAnswers = new Array(20).fill(null);
+        let timeLeft = 180; // 3 minutes per question
+        let timerInterval = null;
+        let isQuizRunning = false;
+        let isCheating = false;
+        let studentName = "";
+        let studentClass = "";
+
+        // Elements
+        const viewLogin = document.getElementById('view-login');
+        const viewQuiz = document.getElementById('view-quiz');
+        const viewResult = document.getElementById('view-result');
+        const viewTeacher = document.getElementById('view-teacher');
+        
+        const antiCheatScreen = document.getElementById('anti-cheat-screen');
+        
+        const textCurrentQ = document.getElementById('text-current-q');
+        const textTimer = document.getElementById('text-timer');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const btnSubmit = document.getElementById('btn-submit');
+
+        // Attach handlers to window object so inline HTML module structure can access or add them via EventListeners
+        document.getElementById('btn-start').addEventListener('click', startQuiz);
+        btnPrev.addEventListener('click', () => changeQuestion(-1));
+        btnNext.addEventListener('click', () => changeQuestion(1));
+        btnSubmit.addEventListener('click', () => finishQuiz(false)); // false means natural finish
+        
+        // Teacher Dashboard events
+        document.getElementById('btn-show-teacher').addEventListener('click', () => {
+            viewLogin.classList.add('hidden');
+            viewTeacher.classList.remove('hidden');
+        });
+        document.getElementById('btn-close-teacher').addEventListener('click', () => {
+            viewTeacher.classList.add('hidden');
+            viewLogin.classList.remove('hidden');
+        });
+        document.getElementById('btn-login-teacher').addEventListener('click', handleTeacherLogin);
+        document.getElementById('btn-download-csv').addEventListener('click', downloadCSV);
+
+        function startQuiz() {
+            studentName = document.getElementById('input-nama').value.trim();
+            studentClass = document.getElementById('input-kelas').value;
+
+            if (studentName === "" || studentClass === "") {
+                alert("Mohon lengkapi Nama dan Kelas terlebih dahulu!");
+                return;
+            }
+
+            // Anti cheat: Request Fullscreen
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => console.log("Fullscreen diabaikan browser"));
+            }
+
+            viewLogin.classList.add('hidden');
+            viewQuiz.classList.remove('hidden');
+            
+            isQuizRunning = true;
+            isCheating = false;
+            currentQuestion = 0;
+            
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentQuestion];
+            textCurrentQ.innerText = currentQuestion + 1;
+            questionText.innerText = q.q;
+            
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, index) => {
+                const isChecked = studentAnswers[currentQuestion] === index;
+                
+                const label = document.createElement('label');
+                label.className = `option-label flex items-center p-4 border rounded-xl cursor-pointer ${isChecked ? 'bg-blue-50 border-blue-400' : 'border-gray-200 bg-white'}`;
+                
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'q_option';
+                input.value = index;
+                input.className = 'w-5 h-5 text-blue-600 focus:ring-blue-500 mr-4';
+                if (isChecked) input.checked = true;
+                
+                input.addEventListener('change', () => {
+                    studentAnswers[currentQuestion] = index;
+                    // Update styling
+                    document.querySelectorAll('.option-label').forEach(el => {
+                        el.classList.remove('bg-blue-50', 'border-blue-400');
+                        el.classList.add('border-gray-200', 'bg-white');
+                    });
+                    label.classList.remove('border-gray-200', 'bg-white');
+                    label.classList.add('bg-blue-50', 'border-blue-400');
+                });
+
+                const span = document.createElement('span');
+                span.className = 'text-gray-700';
+                span.innerText = opt;
+
+                label.appendChild(input);
+                label.appendChild(span);
+                optionsContainer.appendChild(label);
+            });
+
+            // Button visibility
+            btnPrev.disabled = currentQuestion === 0;
+            
+            if (currentQuestion === questions.length - 1) {
+                btnNext.classList.add('hidden');
+                btnSubmit.classList.remove('hidden');
+            } else {
+                btnNext.classList.remove('hidden');
+                btnSubmit.classList.add('hidden');
+            }
+
+            resetTimer();
+        }
+
+        function changeQuestion(step) {
+            currentQuestion += step;
+            renderQuestion();
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 180; // 3 menit
+            updateTimerUI();
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerUI();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    if (currentQuestion < questions.length - 1) {
+                        changeQuestion(1); // Paksa ke soal selanjutnya
+                    } else {
+                        finishQuiz(false); // Paksa kumpulkan
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            let s = (timeLeft % 60).toString().padStart(2, '0');
+            textTimer.innerText = `${m}:${s}`;
+            
+            if (timeLeft <= 30) {
+                textTimer.parentElement.classList.remove('bg-red-100', 'text-red-700');
+                textTimer.parentElement.classList.add('bg-red-600', 'text-white', 'animate-pulse');
+            } else {
+                textTimer.parentElement.classList.add('bg-red-100', 'text-red-700');
+                textTimer.parentElement.classList.remove('bg-red-600', 'text-white', 'animate-pulse');
+            }
+        }
+
+        async function finishQuiz(cheatFlag = false) {
+            isQuizRunning = false;
+            clearInterval(timerInterval);
+            
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(()=>{});
+            }
+
+            let correct = 0;
+            for(let i=0; i<questions.length; i++) {
+                if (studentAnswers[i] === questions[i].answer) {
+                    correct++;
+                }
+            }
+            let score = Math.round((correct / questions.length) * 100);
+
+            viewQuiz.classList.add('hidden');
+            viewResult.classList.remove('hidden');
+            document.getElementById('res-nama').innerText = studentName;
+            document.getElementById('res-score').innerText = score;
+            if(cheatFlag) {
+                document.getElementById('res-score').innerText = score + " (Curang)";
+                document.getElementById('res-score').classList.add('text-red-600', 'text-4xl');
+            }
+
+            await saveToDatabase(studentName, studentClass, score, cheatFlag ? 'Curang' : 'Normal');
+        }
+
+        async function saveToDatabase(nama, kelas, nilai, status) {
+            if (!isDbConnected || !currentUser) {
+                console.log("Database tidak aktif. Data simulasi tersimpan di browser saja.");
+                return;
+            }
+            try {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'quiz_scores');
+                await addDoc(colRef, {
+                    nama: nama,
+                    kelas: kelas,
+                    nilai: nilai,
+                    status: status,
+                    userId: currentUser.uid,
+                    timestamp: serverTimestamp()
+                });
+            } catch (e) {
+                console.error("Error menyimpan ke database:", e);
+            }
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && isQuizRunning && !isCheating) {
+                isCheating = true;
+                antiCheatScreen.style.display = "flex";
+                
+                // Force submit immediately
+                setTimeout(() => {
+                    antiCheatScreen.style.display = "none";
+                    finishQuiz(true); // true = cheat flag
+                }, 3000); // Tunjukkan layar merah selama 3 detik sebelum redirect ke hasil
+            }
+        });
+
+        let cachedScores = [];
+
+        function handleTeacherLogin() {
+            const pass = document.getElementById('input-password').value;
+            if (pass === 'guru123') { 
+                document.getElementById('teacher-login').classList.add('hidden');
+                document.getElementById('teacher-data').classList.remove('hidden');
+                fetchScores();
+            } else {
+                document.getElementById('teacher-error').classList.remove('hidden');
+            }
+        }
+
+        async function fetchScores() {
+            if (!isDbConnected || !currentUser) {
+                document.getElementById('table-body').innerHTML = "<tr><td colspan='5' class='text-center p-4 text-red-500'>Database tidak terhubung. Silakan masukkan Firebase Config jika menjalankan file ini di server Anda sendiri.</td></tr>";
+                return;
+            }
+            
+            document.getElementById('loading-text').classList.remove('hidden');
+            
+            try {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'quiz_scores');
+                const querySnapshot = await getDocs(colRef);
+                
+                let scores = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    scores.push({
+                        id: doc.id,
+                        nama: data.nama || '-',
+                        kelas: data.kelas || '-',
+                        nilai: data.nilai !== undefined ? data.nilai : '-',
+                        status: data.status || 'Normal',
+                        timeMs: data.timestamp ? data.timestamp.toMillis() : Date.now()
+                    });
+                });
+
+                scores.sort((a, b) => b.timeMs - a.timeMs);
+                cachedScores = scores;
+                renderTable(scores);
+                
+            } catch (error) {
+                console.error("Error fetching scores: ", error);
+                document.getElementById('table-body').innerHTML = "<tr><td colspan='5' class='text-center p-4 text-red-500'>Gagal memuat data dari database. Pastikan koneksi internet stabil.</td></tr>";
+            } finally {
+                document.getElementById('loading-text').classList.add('hidden');
+            }
+        }
+
+        function renderTable(scores) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            if (scores.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='5' class='text-center p-4 text-gray-500'>Belum ada data nilai.</td></tr>";
+                return;
+            }
+
+            scores.forEach(s => {
+                let dateStr = new Date(s.timeMs).toLocaleString('id-ID');
+                let statusBadge = s.status === 'Curang' 
+                    ? '<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Curang</span>'
+                    : '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Normal</span>';
+                
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3 text-gray-600">${dateStr}</td>
+                        <td class="p-3 font-semibold text-gray-800">${s.nama}</td>
+                        <td class="p-3 text-gray-600">${s.kelas}</td>
+                        <td class="p-3 font-bold text-blue-600">${s.nilai}</td>
+                        <td class="p-3">${statusBadge}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function downloadCSV() {
+            if (cachedScores.length === 0) {
+                alert("Tidak ada data untuk diunduh.");
+                return;
+            }
+
+            const headers = ["Waktu", "Nama Siswa", "Kelas", "Nilai", "Status"];
+            const rows = cachedScores.map(s => {
+                let dateStr = new Date(s.timeMs).toLocaleString('id-ID').replace(/,/g, '');
+                return [dateStr, s.nama, s.kelas, s.nilai, s.status].join(",");
+            });
+            
+            const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows].join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Data_Nilai_Ulangan_Fisika_Listrik_Dinamis.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
